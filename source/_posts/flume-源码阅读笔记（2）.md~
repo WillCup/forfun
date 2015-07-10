@@ -1,6 +1,6 @@
 title: "flume 源码阅读笔记（2）"
 date: 2015-07-08 20:15:48
-tags: [flume, 源码]
+tags: flume 源码
 ---
 通过寻找LifecycleAware的子类就可以发现，所有flume的component都继承了这个接口。下面是几个主要的
 

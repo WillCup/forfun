@@ -1,6 +1,6 @@
 title: flume源码阅读笔记 （3）
 date: 2015-07-10 00:13:12
-tags: flume
+tags: [flume, 源码]
 ---
 前面介绍了几个关键组件以及相互的关系，这次我们来看看flume里对于事务的封装与处理。
 ## Transaction
