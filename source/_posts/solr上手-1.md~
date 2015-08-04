@@ -1,0 +1,77 @@
+title: solr上手（一）
+date: 2015-08-03 20:16:18
+tags: [solr]
+---
+
+
+### 1. 先下载咯
+### 2. 解压，执行命令
+> solr start -e cloud -noprompt
+
+```
+root@ubuntu:/opt/softwares/solr-5.2.1# ./bin/solr start -e cloud -noprompt
+
+Welcome to the SolrCloud example!
+
+
+Starting up 2 Solr nodes for your example SolrCloud cluster.
+Creating Solr home directory /opt/softwares/solr-5.2.1/example/cloud/node1/solr
+Cloning Solr home directory /opt/softwares/solr-5.2.1/example/cloud/node1 into /opt/softwares/solr-5.2.1/example/cloud/node2
+
+Starting up SolrCloud node1 on port 8983 using command:
+
+solr start -cloud -s example/cloud/node1/solr -p 8983  -m 512m 
+
+
+Waiting to see Solr listening on port 8983 [-]  
+Started Solr server on port 8983 (pid=7677). Happy searching!
+
+    
+
+Starting node2 on port 7574 using command:
+
+solr start -cloud -s example/cloud/node2/solr -p 7574 -z localhost:9983 -m 512m  
+
+
+Waiting to see Solr listening on port 7574 [|]  
+Started Solr server on port 7574 (pid=7932). Happy searching!
+
+Connecting to ZooKeeper at localhost:9983
+Uploading /opt/softwares/solr-5.2.1/server/solr/configsets/data_driven_schema_configs/conf for config gettingstarted to ZooKeeper at localhost:9983
+```
+
+打开页面 http://localhost:8983/solr，看到solr管理的主界面，可以通过点击Cloud标签看到：包含两个shard,每个shard有一个备份。
+![1. solr Cloud 视图](/imgs/solr/1.1 solr Cloud视图.png)
+
+
+### 3. 使用docs文件夹索引数据
+现在solr虽然已经运行起来了，但是没有任何数据。为了测试方便，官网给带了一个快速插入数据的脚本bin/post，运行一下
+> bin/post -c gettingstarted docs/ 
+
+
+注意目前只支持shell，如果是window的话，需要运行【java  -jar example/exampledocs/post.jar -h】
+
+命令行参数的解释：
+
+- -c gettingstarted:  要把index创建到哪个collection下
+- docs/:  一个基于solr安装路径下docs目录的相对路径
+
+### 4. 使用xml/json/csv创建索引
+
+### 5. 更新
+细心的你一定发现即便重复插入同样的数据，我们查询的时候还是不会出现多个，这是因为例子中的schema.xml中指定了主键uniqueKey为id.当我们向solr插入一个已经存在的uniqueKey的时候，会××自动替换××掉原来的记录。我们可以实验一下，一直插入同样一条文档，观察一下solr实例的状况，Num Docs一直不变。
+![2. solr 实例查看](/imgs/solr/1.2 solr 实例查看.png)
+Max Docs除了包含所有的doc，还包含已经逻辑删除，但是还没有物理删除的doc。
+### 6. 删除
+可以指定文档的uniqueKey来删除指定文档，也可以找到满足某个条件的所有文档进行删除，只要向solr的更新URL发送一个删除命令就可以了。
+> bin/post -c gettingstarted -d "<delete><id>SP2514N</id></delete>"
+
+### 7. 搜索
+我们可以通过REST client，curl，wget，Postman以及本地的solr客户端进行solr查询。
+这章使用的命令行在实际程序里使用还是很少的。下一章我们会介绍使用REST对solr进行查询操作。
+
+
+### 异常
+
+Expected mime type application/octet-stream but got text/html.
+针对不存在的索引插入数据时引发。
