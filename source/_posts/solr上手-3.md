@@ -1,0 +1,95 @@
+title: solr上手（三）
+date: 2015-08-06 10:16:18
+tags: [solr]
+---
+
+前面说了一些简单的查询，这一章我们介绍一些稍微复杂些的 —— faceting，可以理解是切片，它是solr最牛逼的特性之一。就是针对查到的数据再进行一些聚合处理。看例子，明白的快些。
+
+## facet[分组查询]
+
+###  field facets
+
+
+
+除了查询返回的信息，还会包括根据facet.field进行分组的count数.
+
+![1 field facet实例](/imgs/solr/3.1 field facet实例.png)
+
+
+### range facets
+
+> http://localhost:8983/solr/gettingstarted/select?q=*:*&wt=json&indent=on&rows=0&facet=true%20&facet.range=price&f.price.facet.range.start=0&f.price.facet.range.end=600%20&f.price.facet.range.gap=50&facet.range.other=after
+
+
+![2 range facet实例](/imgs/solr/3.2 range facet实例.png)
+
+看到，这个例子是针对某个字段进行一些区间划分，然后计算每个区间的count数。
+
+### Pivot facets
+
+不太好理解，可以里结果多维分组count。
+> http://localhost:8983/solr/gettingstarted/select?q=*:*&rows=0&wt=json&indent=on&facet=on&facet.pivot=cat,inStock
+
+![3 povit facet实例](/imgs/solr/3.3 povit facet实例.png)
+
+此例是先对cat字段分组，之后基于此，再对inStock进行分组计数。 
+
+参考：http://www.cnblogs.com/ontheroad_lee/p/3526385.html
+http://hongweiyi.com/2013/03/apache-solr-facet-introduction/
+https://cwiki.apache.org/confluence/display/solr/Faceting
+
+
+
+## spatial[空间查询]
+
+solr是支持复杂的空间查询的，例如某个位置点的某个距离的圆的范围，按照距离排序等。我们可以到example/exampledocs/*.xml看一些示例数据，用这些数据来展示solr牛逼的空间能力。
+
+启动测试solr
+> bin/solr start -e techproducts
+
+把数据导入进本地solr里
+
+> bin/post -c techproducts example/exampledocs/*.xml
+
+![4 空间实例数据](/imgs/solr/3.4 空间实例数据.png)
+
+空间查询和其他类型的查询也是可以结合在一起进行的，例如查距离San Francisco十公里内的ipod。
+
+> http://localhost:8983/solr/techproducts/browse?q=ipod&pt=37.7752,-122.4232&d=10&sfield=store&fq={!bbox}&queryOpts=spatial&queryOpts=spatial
+
+![5 空间查询](/imgs/solr/3.5 空间查询.png)
+
+这里我们使用了/browse界面进行查询【奇怪的是cloud和techproducts的/browse界面是不一样的】
+
+详见https://cwiki.apache.org/confluence/display/solr/Spatial+Search
+
+## 总结
+
+目前位置我们玩儿了：
+
+- 以SolrCloud方式启动solr，两个节点，每个core两个shard，两个备份
+- 向solr里批量导入数据
+- 使用Solr admin UI进行一些查询
+- 使用/browse接口的一些功能
+
+其实有个脚本。。。我擦擦擦擦！才他么说！！！！
+```shell
+date ;
+bin/solr start -e cloud -noprompt ;
+  open http://localhost:8983/solr ;
+  bin/post -c gettingstarted docs/ ;
+  open http://localhost:8983/solr/gettingstarted/browse ;
+  bin/post -c gettingstarted example/exampledocs/*.xml ;
+  bin/post -c gettingstarted example/exampledocs/books.json ;
+  bin/post -c gettingstarted example/exampledocs/books.csv ;
+  bin/post -c gettingstarted -d "<delete><id>SP2514N</id></delete>" ;
+  bin/solr healthcheck -c gettingstarted ;
+date ;
+
+
+```
+
+## 清理工作
+
+> bin/solr stop -all ; rm -Rf example/cloud/
+

@@ -3,10 +3,15 @@ date: 2015-08-03 20:16:18
 tags: [solr]
 ---
 
+### 首发
+![](/imgs/solr/1.0 solr组件关系图.jpg)
 
 ### 1. 先下载咯
 ### 2. 解压，执行命令
 > solr start -e cloud -noprompt
+解释一下这个命令的意思，启动就是启动咯。
+-e 其实是example的简写，也就是指定启动solr官网的某个例子，然后cloud，你懂得。。。
+后面那个暂时还不太清楚，目测是不需要交互神马的
 
 ```
 root@ubuntu:/opt/softwares/solr-5.2.1# ./bin/solr start -e cloud -noprompt
