@@ -22,68 +22,66 @@ tags: [akka]
 
 > java -jar target/scala-2.10/goticks-server.jar
 
-```
-Slf4jEventHandler started
-akka://com-goticks-Main/user/io-bridge started
-akka://com-goticks-Main/user/http-server started on /0.0.0.0:5000
-```
+	Slf4jEventHandler started
+	akka://com-goticks-Main/user/io-bridge started
+	akka://com-goticks-Main/user/http-server started on /0.0.0.0:5000
 
 ### sbt
 sbt的配置文件就是项目根目录下的build.sbt文件。
 
-```
-import AssemblyKeys._
-import com.typesafe.sbt.SbtStartScript
+	import AssemblyKeys._
+	import com.typesafe.sbt.SbtStartScript
 
-// 有两个jar需要用到上面两个import。一个类似maven里的shade，将项目打成一个大jar；另一个则是用来部署项目到Heroku上。
+	// 有两个jar需要用到上面两个import。一个类似maven里的shade，将项目打成一个大jar；另一个则是用来部署项目到Heroku上。
 
-name := "goticks"
+	name := "goticks"
 
-version := "0.1-SNAPSHOT"
+	version := "0.1-SNAPSHOT"
 
-organization := "com.goticks"
+	organization := "com.goticks"
 
-scalaVersion := "2.11.2"
+	scalaVersion := "2.11.2"
 
-resolvers ++= Seq("Typesafe Repository" at "http://repo.typesafe.com/typesafe/releases/",
-                  "Spray Repository"    at "http://repo.spray.io")
-// 指定repositories
+	resolvers ++= Seq("Typesafe Repository" at "http://repo.typesafe.com/typesafe/releases/",
+		          "Spray Repository"    at "http://repo.spray.io")
+	// 指定repositories
 
-libraryDependencies ++= {
-  val akkaVersion       = "2.3.9"
-  val sprayVersion      = "1.3.2"
-  Seq(
-    "com.typesafe.akka" %% "akka-actor"      % akkaVersion,
-    "io.spray"          %% "spray-can"       % sprayVersion,
-    "io.spray"          %% "spray-routing"   % sprayVersion,
-    "io.spray"          %% "spray-json"      % "1.3.1",
-    "com.typesafe.akka" %% "akka-slf4j"      % akkaVersion,
-    "ch.qos.logback"    %  "logback-classic" % "1.1.2",
-    "com.typesafe.akka" %% "akka-testkit"    % akkaVersion   % "test",
-    "org.scalatest"     %% "scalatest"       % "2.2.0"       % "test"
-  )
-}
+	libraryDependencies ++= {
+	  val akkaVersion       = "2.3.9"
+	  val sprayVersion      = "1.3.2"
+	  Seq(
+	    "com.typesafe.akka" %% "akka-actor"      % akkaVersion,
+	    "io.spray"          %% "spray-can"       % sprayVersion,
+	    "io.spray"          %% "spray-routing"   % sprayVersion,
+	    "io.spray"          %% "spray-json"      % "1.3.1",
+	    "com.typesafe.akka" %% "akka-slf4j"      % akkaVersion,
+	    "ch.qos.logback"    %  "logback-classic" % "1.1.2",
+	    "com.typesafe.akka" %% "akka-testkit"    % akkaVersion   % "test",
+	    "org.scalatest"     %% "scalatest"       % "2.2.0"       % "test"
+	  )
+	}
 
-// Assembly settings
-mainClass in Global := Some("com.goticks.Main")
+	// Assembly settings
+	mainClass in Global := Some("com.goticks.Main")
 
-jarName in assembly := "goticks-server.jar"
+	jarName in assembly := "goticks-server.jar"
 
-assemblySettings
+	assemblySettings
 
-// StartScript settings
-seq(SbtStartScript.startScriptForClassesSettings: _*)
+	// StartScript settings
+	seq(SbtStartScript.startScriptForClassesSettings: _*)
 
-```
+
 
 ### REST server
 
 到根目录下启动server
 > sbt run
+
 ![2 REST规范](/imgs/akka/2.2 REST规范.png)
 存取[为方便测试，请事先安装Linux工具httpie]:
 
-```
+```shell
 root@ubuntu:~/gitLearning/akka-in-action/chapter2# http PUT localhost:5000/events event=RHCP nrOfTickets:=10
 HTTP/1.1 200 OK
 Content-Length: 2
@@ -172,7 +170,7 @@ RestInterface Actor负责处理HTTP request，其实就是一个HTTP请求的ada
 
 下面让我们退回去看一下代码，首先是入口Main类
 
-```
+```scala
 package com.goticks
 
 import scala.concurrent.duration._
@@ -215,7 +213,7 @@ object Main extends App {
 ```
 
 这个App内部沟通的消息类型都定义在TicketProtocol中：
-```java
+```scala
 object TicketProtocol {
   import spray.json._
 
@@ -260,7 +258,7 @@ object TicketProtocol {
 #### TicketSeller
 
 TicketSeller是由BoxOffice创建的, 主要负责处理订单的，自己维护了一些ticket。每次有买票的请求，它就从自己的ticket list里拿出第一张来：
-```
+```scala
 class TicketSeller extends Actor {
   import TicketProtocol._
 
@@ -290,7 +288,7 @@ class TicketSeller extends Actor {
 #### BoxOffice
 BoxOffice 需要为每个event都创建TicketSeller，并把买票请求代理给他们。
 
-```
+```scala
 class BoxOffice extends Actor with CreateTicketSellers with ActorLogging {
   import TicketProtocol._
   import context._
