@@ -64,6 +64,8 @@ pagination_dir: page
 ## Themes: http://hexo.io/themes/
 #theme: landscape
 theme: jacman
+stylus:
+  compress: true
 
 # Deployment
 ## Docs: http://hexo.io/docs/deployment.html
