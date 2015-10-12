@@ -62,8 +62,8 @@ pagination_dir: page
 # Extensions
 ## Plugins: http://hexo.io/plugins/
 ## Themes: http://hexo.io/themes/
-theme: landscape
-#theme: jacman
+#theme: landscape
+theme: jacman
 stylus:
   compress: true
 
