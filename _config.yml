@@ -70,4 +70,7 @@ stylus:
 # Deployment
 ## Docs: http://hexo.io/docs/deployment.html
 deploy:
-  type:
+  type: git
+  repository: https://github.com/WillCup/willcup.github.io.git
+  branch: master
+  message: just a test
