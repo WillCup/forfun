@@ -87,6 +87,23 @@ Bundle 'VimIM'
 "......................................
 filetype plugin indent on	"这一行就是结束了
 
+" 粘贴错位问题
+nnoremap <F3> :set invpaste paste?<CR>
+imap <F3> <C-O>:set invpaste paste?<CR>
+set pastetoggle=<F3>
+
+
+" nerdTree设置
+" 在 vim 启动的时候默认开启 NERDTree（autocmd 可以缩写为 au）
+autocmd VimEnter * NERDTree
+" 按下 F2 调出/隐藏 NERDTree
+" map  :silent! NERDTreeToggle
+silent! map <F2> :NERDTreeToggle<CR>
+let g:NERDTreeMapActivateNode="<F2>"
+" 将 NERDTree 的窗口设置在 vim 窗口的右侧（默认为左侧）
+" let NERDTreeWinPos="right"
+" 当打开 NERDTree 窗口时，自动显示 Bookmarks
+let NERDTreeShowBookmarks=1
 ```
 
 ### 2.简单使用
