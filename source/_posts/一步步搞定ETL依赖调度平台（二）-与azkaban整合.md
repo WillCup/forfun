@@ -80,29 +80,40 @@ echo "all flows for project ${project_name} has been executed"
 ### 3.shell全文
 ```bash
 #!/bin/bash
-if [ !$# -eq 2]; then
-        echo "useage : etl.sh datetime"
-        exit
-fi
 
-date=$1
-etl_tmp=/tmp/etl_tmp
-project_name=etl_$datetime
-host=10.1.5.66:8001
+etl_tmp=/tmp/etl_tmp_log
+host=10.0.1.62:8081
+metamap_host=10.0.1.62:8080
 project_desc=daily_schedule
-project_zip_file=/tmp/$datetime.zip
+
+# 调用生成job的任务，返回任务名称或者失败信息
+#curl -X GET http://${metamap_host}/metamap/etl/generateJobScript > ${etl_tmp}
+filename=`cat ${etl_tmp}`
+filename=${filename:1:14}
+if [ $filename == "error" -o ${#filename} -ne 14 ]; then
+        echo "error happends when generate Job Scripts. filename is ${filename}"
+	echo "length is ${#filename}"
+        exit 1
+
+fi
+project_name=etl_${filename}
+project_zip_file=/tmp/${filename}.zip
+
+echo "azkaban host is ${host}"
 
 # 获取session id
-curl -k -X POST --data "username=azkaban&password=azkaban&action=login" http://10.1.5.66:8001 > $etl_tmp
+curl -k -X POST --data "username=azkaban&password=azkaban&action=login" http://${host} > ${etl_tmp}
+echo result is `cat ${etl_tmp}`
 session_id=`cat ${etl_tmp} | grep session | awk -F\" '!/[{}]/{print $(NF-1)}'`
 echo "we got session id : $session_id"
 
-# 创建project
+### 创建project
 echo "project name is $project_name"
 curl -k -X POST --data "session.id=${session_id}&name=${project_name}&description=${project_desc}" http://${host}/manager?action=create > ${etl_tmp}
 status=`cat ${etl_tmp} | JSON.sh -b| grep status | awk '{print($2)}'` 
 if [ $status != '"success"' ]; then
         echo "error happends when creting project ${project_name}. status is ${status}"
+	exit 1
 fi
 echo "project ${project_name} has been created successfully."
 
@@ -121,7 +132,8 @@ curl -k --get --data "session.id=${session_id}&ajax=fetchprojectflows&project=${
 for flow in `cat ${etl_tmp} |  JSON.sh -b | grep flowId |  awk '{gsub("\"","",$2);print($2)}'`
 do
         echo "flow is $flow, ready to execute"
-        curl -k --get --data "session.id=${session_id}" --data 'ajax=executeFlow' --data "project=${project_name}" --data "flow=${flow}" http://${host}/executor >${etl_tmp}${flow}echo "$flow execution done"
+        curl -k --get --data "session.id=${session_id}" --data 'ajax=executeFlow' --data "project=${project_name}" --data "flow=${flow}" http://${host}/executor >${etl_tmp}${flow}
+echo "$flow execution done"
 done
 echo "all flows for project ${project_name} has been executed"
 ```

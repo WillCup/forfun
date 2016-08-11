@@ -155,7 +155,10 @@ sbt的配置文件就是项目根目录下的build.sbt文件。
 你可以尝试跟着github上搞下来的源码自己一步步构建项目试试。现在我们已经知道了，actor可以有四种操作：create, send\receive, become, supervise。这里我们会接触到前两个。
 先看看actor之间怎样相互作用传递信息: 创建event、改票、完成event。
 
+例子中的app只包含三个Actor类。首先，我们是创建这些Actor的容器ActorSystem, 之后Actor再去创建它的子Actor。下图是次序：
+
 ![3. Actor Creation Sequence Triggered by REST Request](/imgs/akka/2.3 Actor Creation Sequence Triggered by REST Request.png)
+
 
 RestInterface Actor负责处理HTTP request，其实就是一个HTTP请求的adapter。TicketSeller则负责一些tickets，所有关于票务买卖的event它都管。下图解释了一个request怎样通过actor system创建一个event：
 
@@ -357,7 +360,7 @@ trait CreateTicketSellers { self:Actor =>
 
 #### RestInterface
 
-RestInterface使用了Spray routing DSL，后面第九章会详解：当service越来越大，复杂的路由也越来越多，我们这个例子里倒是很少，因为只是卖票而已。
+RestInterface使用了Spray routing DSL，后面第九章会详解：当service越来越大，复杂的路由也越来越多。我们这个例子里倒是很少，因为只是卖票而已。
 
 ```scala
 package com.goticks
