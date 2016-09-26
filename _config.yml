@@ -17,6 +17,8 @@ root: /
 permalink: :year/:month/:day/:title/
 permalink_defaults:
 
+duoshuo_shortname: ruoyuchen
+
 # Directory
 source_dir: source
 public_dir: public
@@ -62,7 +64,7 @@ pagination_dir: page
 # Extensions
 ## Plugins: http://hexo.io/plugins/
 ## Themes: http://hexo.io/themes/
-#theme: landscape
+# theme: landscape
 theme: jacman
 stylus:
   compress: true
@@ -70,7 +72,7 @@ stylus:
 # Deployment
 ## Docs: http://hexo.io/docs/deployment.html
 deploy:
-  type: git
-  repository: https://github.com/WillCup/willcup.github.io.git
-  branch: master
-  message: just a test
+  #type: git
+  #repository: https://github.com/WillCup/willcup.github.io.git
+  #branch: master
+  #message: just a test
