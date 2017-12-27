@@ -72,7 +72,7 @@ stylus:
 # Deployment
 ## Docs: http://hexo.io/docs/deployment.html
 deploy:
-  #type: git
-  #repository: https://github.com/WillCup/willcup.github.io.git
-  #branch: master
-  #message: just a test
+  type: git
+  repository: https://github.com/ruoyuchen/runningdata.hub.io.git
+  branch: master
+  message: Will's Blog
