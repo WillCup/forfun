@@ -1,10 +1,11 @@
-title: 使用harbor安装docker registry
-date: 2017-01-18 15:56:21
-tags: [docker, harbor, registry]
+
+title: 使用harbor安装docker-registry
+date: 2017-01-17 16:34:40
+tags: [youdaonote]
 ---
 
-## 1.安装docker和docker compose
-
+1. 安装docker和docker compose
+---
 ```
 sudo curl -sSL https://get.docker.com/ | sh
 # 设置Docker以非Root用户运行，确保安全。
@@ -14,7 +15,7 @@ curl -L https://github.com/docker/compose/releases/download/1.7.0-rc1/docker-com
 chmod +x /usr/local/bin/docker-compose
 ```
 
-##  2.获取SSL证书[可选]
+2. 获取SSL证书[可选]
 
 如果使用域名绑定私有仓库，就必须开启SSL
 
@@ -24,7 +25,7 @@ cd letsencrypt
 ./letsencrypt-auto certonly -d docker.will.me
 ```
 
-## 3. 安装harbor
+3. 安装harbor
 
 ```
 wget https://github.com/vmware/harbor/releases/download/0.5.0/harbor-offline-installer-0.5.0.tgz
@@ -163,6 +164,77 @@ b8ed2fce6816        nginx:1.11.5                     "nginx -g 'daemon off"   5 
 
 该起来的全起来了，下面看一下harbor-db的参数，把数据弄到哪里去了？
 
+docker inspect 看了一下
+```
+"Mounts": [
+            {
+                "Source": "/data/database",
+                "Destination": "/var/lib/mysql",
+                "Mode": "rw",
+                "RW": true,
+                "Propagation": "rprivate"
+            }
+        ],
+
+```
+mysql数据放到/data/database了。
+
+再看一下registry的挂载情况：
+```
+"Mounts": [
+            {
+                "Source": "/data/registry",
+                "Destination": "/storage",
+                "Mode": "rw",
+                "RW": true,
+                "Propagation": "rprivate"
+            },
+            {
+                "Source": "/server/harbor/common/config/registry",
+                "Destination": "/etc/registry",
+                "Mode": "rw",
+                "RW": true,
+                "Propagation": "rprivate"
+            },
+            {
+                "Name": "e8aab221ad99604d0f660695895eec3ff425cc0847ac5f0a3a803ab83e70275a",
+                "Source": "/var/lib/docker/volumes/e8aab221ad99604d0f660695895eec3ff425cc0847ac5f0a3a803ab83e70275a/_data",
+                "Destination": "/var/lib/registry",
+                "Driver": "local",
+                "Mode": "",
+                "RW": true,
+                "Propagation": ""
+            }
+        ],
+```
+
+此时以上两个目录还都是空的
+```
+[root@controller harbor]# ll /server/harbor/common/config/registry
+total 8
+-rw-r--r-- 1 root root  694 Jan 18 03:05 config.yml
+-rw-r--r-- 1 root root 2151 Jan 18 03:05 root.crt
+[root@controller harbor]# ll /data/database
+total 110608
+-rw-rw---- 1 systemd-bus-proxy ssh_keys       56 Jan 18 03:07 auto.cnf
+-rw-rw---- 1 systemd-bus-proxy ssh_keys 12582912 Jan 18 03:25 ibdata1
+-rw-rw---- 1 systemd-bus-proxy ssh_keys 50331648 Jan 18 03:25 ib_logfile0
+-rw-rw---- 1 systemd-bus-proxy ssh_keys 50331648 Jan 18 03:06 ib_logfile1
+drwx------ 2 systemd-bus-proxy ssh_keys     4096 Jan 18 03:07 mysql
+drwx------ 2 systemd-bus-proxy ssh_keys     4096 Jan 18 03:07 performance_schema
+drwx------ 2 systemd-bus-proxy ssh_keys     4096 Jan 18 03:07 registry
+```
+
+
+
+参考：
+https://github.com/vmware/harbor/blob/master/docs/installation_guide.md
+
+4. 使用
+---
+netstat -ntlp 发现80端口被启动了，应该就是它。下面就登陆一下harbor看一下
+
+
 docker-compose.yml配置文件
 ```yml
 version: '2'
@@ -262,35 +334,8 @@ services:
         tag: "proxy"
 ```
 
-mysql数据放到/data/database了。
 
-还有registry的挂载位置。
-```
-[root@controller harbor]# ll /server/harbor/common/config/registry
-total 8
--rw-r--r-- 1 root root  694 Jan 18 03:05 config.yml
--rw-r--r-- 1 root root 2151 Jan 18 03:05 root.crt
-[root@controller harbor]# ll /data/database
-total 110608
--rw-rw---- 1 systemd-bus-proxy ssh_keys       56 Jan 18 03:07 auto.cnf
--rw-rw---- 1 systemd-bus-proxy ssh_keys 12582912 Jan 18 03:25 ibdata1
--rw-rw---- 1 systemd-bus-proxy ssh_keys 50331648 Jan 18 03:25 ib_logfile0
--rw-rw---- 1 systemd-bus-proxy ssh_keys 50331648 Jan 18 03:06 ib_logfile1
-drwx------ 2 systemd-bus-proxy ssh_keys     4096 Jan 18 03:07 mysql
-drwx------ 2 systemd-bus-proxy ssh_keys     4096 Jan 18 03:07 performance_schema
-drwx------ 2 systemd-bus-proxy ssh_keys     4096 Jan 18 03:07 registry
-```
-
-
-
-参考：
-https://github.com/vmware/harbor/blob/master/docs/installation_guide.md
-
-## 4.上传镜像
-netstat -ntlp 发现80端口被启动了，应该就是它。下面就登陆一下harbor看一下。
-
-![登陆界面](/imgs/harbor/harbor_login.png)
-
+5. 上传镜像
 找一个安装了docker的机器，在/etc/docker/daemon.json文件中指定insecure-registries【因为我们上面并没有启用HTTPS协议】
 ```json
 
@@ -333,10 +378,7 @@ c610e92140d8: Pushed
 ```
 
 页面中的显示
-![镜像信息](/imgs/harbor/harbor_images.png)
-
-![镜像操作log](/imgs/harbor/harbor_images_log.png)
-
+[]()
 
 参考：
 - http://www.jianshu.com/p/141855241f2d

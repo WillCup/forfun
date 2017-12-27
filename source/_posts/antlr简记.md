@@ -1,6 +1,7 @@
+
 title: antlr简记
-date: 2016-07-16 22:49:04
-tags: [antlr]
+date: 2016-12-05 17:08:59
+tags: [youdaonote]
 ---
 
 要素
@@ -11,7 +12,7 @@ tags: [antlr]
  - Semantic Analyser: 语义解析；
  - Generate/Improve Code: 生成机器能够读懂的执行代码。
 
-![](/imgs/antlr/general_phrases_of_compiler.png)
+![](C:\Users\will\Pictures\general_phrases_of_compiler.png)
 
 
 参考：https://www.youtube.com/watch?v=PooQrbFrd_U
@@ -32,25 +33,25 @@ tags: [antlr]
 主要就是preferences里的antlr->builder里添加一个installed package，只需要一个jar包即可，但是规范是把这个jar包放到某个文件夹里。
 
 我的地址是：E:\tools\antlr3.2。里面放置了antlr-3.2.jar文件。
-![添加antlr的jar包给插件调用](/imgs/antlr/antlr-install-package-eclipse.png)
+![添加antlr的jar包给插件调用](C:\Users\will\Pictures\antlr-install-package-eclipse.png)
 还可以在code generator配置一下代码产生的位置。
-![代码产生位置](/imgs/antlr/antlr-code-generator-eclipse.png)
+![代码产生位置](C:\Users\will\Pictures\antlr-code-generator-eclipse.png)
 
 #### IDE简介
 ##### grammer编辑界面
 有些自动提示啥的，保存后会自动编译，并在前面指定位置生成lexer和parser代码。
-![antlr编辑器](/imgs/antlr/antlr-editor-eclipse.png)
+![antlr编辑器](C:\Users\will\Pictures\antlr-editor-eclipse.png)
 
 ##### 测试执行界面
 完成gramemr的编辑之后，可以编辑一些测试脚本，验证grammer的正确性。跟测试连接的真紧密啊，貌似antlr想不测试驱动开发都难，哈哈~
-![antlr Intercepter](/imgs/antlr/antlr-intercepter-eclipse.png)
+![antlr Intercepter](C:\Users\will\Pictures\antlr-intercepter-eclipse.png)
 **注意** : 有的时候直接点击右上角的执行按钮，并不能成功解析。可以再试一下执行的下来按钮里的Run(java)的方式，它等同于执行以下代码：
 ```java
 ```
 
 ##### RailRoad 视图
 展示每个rule的路线图。点击左边的rule，右边就自动呈现出来了。可以形象化的展示我们定义的每个rule。
-![antlr RailRoad界面](/imgs/antlr/antlr-railroad-eclipse.png)
+![antlr RailRoad界面](C:\Users\will\Pictures\antlr-railroad-eclipse.png)
   
   
   
@@ -89,9 +90,9 @@ tags: [antlr]
 
 #### 概念
 逻辑流程图
-![逻辑流程](/imgs/antlr/antlr-process-concepts.png)
+![逻辑流程](C:\Users\will\Pictures\antlr-process-concepts.png)
 物理流程图
-![物理流程](/imgs/antlr/antlr-process-code.png)
+![物理流程](C:\Users\will\Pictures\antlr-process-code.png)
 
 - Lexer解析出重要的Token发送给Parser
 - Parser生成AST Tree，
@@ -214,7 +215,7 @@ MUTICOMMENT: '/*' .* '*/' {$channel = HIDDEN;};
 
 
 上面的文件中有个要提示的地方，就是优先级设置：
-![优先级定义](/imgs/antlr/antlr-exec-level.png)
+![优先级定义](C:\Users\will\Pictures\antlr-exec-level.png)
 直接copy的人家的图，大概就是从上到下优先级递减。在grammer中的实现就是低优先级的expression调用高优先级的expression，这样在调用某个expression的时候，就先执行位于叶子节点的最高优先级的expression了。
 
 对应的测试代码：
